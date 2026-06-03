@@ -52,4 +52,13 @@ export async function fetchPriceCache() {
           var migrateRows = legacy.map(function (r) {
             return { user_id: user.data.user.id, ticker: r.ticker, price: Number(r.price), updated_at: r.updated_at };
           });
-          await supabase.from(TABLES.PRICE
+          await supabase.from(TABLES.PRICE_CACHE).upsert(migrateRows, { onConflict: 'user_id,ticker' });
+        }
+      }
+    } catch (e) {
+      // 静默处理
+    }
+  }
+
+  return result;
+}

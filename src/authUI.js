@@ -192,3 +192,5 @@ export function initAuthUI() {
   // 暴露 OAuth handler 到 window
   window._authOAuth = handleOAuth;
 
+  setAuthMode('login');
+}
