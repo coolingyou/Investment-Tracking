@@ -9,7 +9,9 @@
  * @returns {Promise<{ price: number, currency: string }>}
  */
 export async function fetchSinglePrice(ticker) {
-  var url = '/api/stock-price?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
+  // 使用完整 URL 确保从 Vercel 域名请求，而不是 localhost:3000
+  var baseUrl = window.location.protocol + '//' + window.location.host;
+  var url = baseUrl + '/api/quote?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
   var res = await fetch(url, { signal: AbortSignal.timeout(15000), cache: 'no-store' });
   var data = await res.json();
 
@@ -17,9 +19,4 @@ export async function fetchSinglePrice(ticker) {
   if (result && result.meta && result.meta.regularMarketPrice !== undefined) {
     return {
       price: Number(result.meta.regularMarketPrice),
-      currency: result.meta.currency || 'USD',
-    };
-  }
-
-  if (data && data.chart && data.chart.error) {
-    throw new Error('[TradeTracker] ' + ticker + ' ' + (data.chart.error.d
+      currency: result.met
