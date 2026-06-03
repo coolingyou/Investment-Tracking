@@ -2,7 +2,7 @@
  * Vercel Serverless Function -- Stock price proxy
  * 优先使用 Finnhub（需配置 FINNHUB_API_KEY 环境变量）
  * 降级使用 Yahoo Finance
- * 当不传 ticker 时返回 logo 图片
+ * 当 ?ticker=logo 时返回 logo 图片
  */
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
@@ -18,17 +18,29 @@ export default async function handler(req, res) {
 
   var ticker = req.query.ticker;
   
-  // 如果没有 ticker，返回 logo 图片
+  // 如果没有 ticker 或 ticker=logo，返回 logo 图片
   if (!ticker || ticker === 'logo') {
     try {
       var logoUrl = 'https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png';
       var logoRes = await fetch(logoUrl);
-      var logoBuf = await logoRes.arrayBuffer();
+      // 直接 stream 返回
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Cache-Control', 'public, max-age=86400');
-      return res.status(200).end(Buffer.from(logoBuf));
+      // 用 text() 而不是 arrayBuffer() 来避免兼容性问题
+      var text = await logoRes.text();
+      // 从文本转换
+      var buf = [];
+      for (var i = 0; i < text.length; i++) {
+        buf.push(text.charCodeAt(i) & 0xff);
+      }
+      return res.status(200).end(Buffer.from(buf));
     } catch (e) {
-      return res.status(500).json({ error: 'Logo fetch failed' });
+      // 降级：301 重定向到 CDN
+      if (ticker === 'logo') {
+        res.setHeader('Location', 'https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png');
+        return res.status(301).end();
+      }
+      return res.status(500).json({ error: e.message });
     }
   }
 
@@ -37,23 +49,13 @@ export default async function handler(req, res) {
 
   try {
     if (apiKey) {
-      var finnhubUrl = 'https://finnhub.io/api/v1/quote?symbol=' +
-        encodeURIComponent(ticker.toUpperCase()) + '&token=' + apiKey;
+      var finnhubUrl = 'https://finnhub.io/api/v1/quote?symbol=' + encodeURIComponent(ticker.toUpperCase()) + '&token=' + apiKey;
       var fr = await fetch(finnhubUrl, { headers: { 'Accept': 'application/json' } });
       if (fr.ok) {
         var fd = await fr.json();
         if (fd && fd.c !== undefined && fd.c !== null && fd.c > 0) {
           return res.status(200).json({
-            chart: {
-              result: [{
-                meta: {
-                  regularMarketPrice: fd.c,
-                  currency: 'USD',
-                  symbol: ticker.toUpperCase(),
-                  instrumentType: 'EQUITY',
-                },
-              }],
-            },
+            chart: { result: [{ meta: { regularMarketPrice: fd.c, currency: 'USD', symbol: ticker.toUpperCase(), instrumentType: 'EQUITY', dataSource: 'Finnhub' } }] },
           });
         }
       }
@@ -87,9 +89,7 @@ export default async function handler(req, res) {
     var sc = cookieRes.headers.get('set-cookie');
     if (sc) { cookie = sc.split(';')[0]; }
 
-    var crumbRes = await fetch('https://query2.finance.yahoo.com/v1/test/getcrumb', {
-      headers: { Cookie: cookie, 'User-Agent': ua },
-    });
+    var crumbRes = await fetch('https://query2.finance.yahoo.com/v1/test/getcrumb', { headers: { Cookie: cookie, 'User-Agent': ua } });
     var crumb = await crumbRes.text();
 
     var r3 = await fetch('https://query2.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?range=1d&interval=1d&crumb=' + encodeURIComponent(crumb), {
