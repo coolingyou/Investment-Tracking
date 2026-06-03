@@ -2,13 +2,12 @@
  * Vercel Serverless Function -- Stock price proxy
  * 优先使用 Finnhub（需配置 FINNHUB_API_KEY 环境变量）
  * 降级使用 Yahoo Finance
- * Frontend calls: /api/quote?ticker=AAPL
+ * 当不传 ticker 时返回 logo 图片
  */
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -18,20 +17,29 @@ export default async function handler(req, res) {
   }
 
   var ticker = req.query.ticker;
-  if (!ticker) {
-    return res.status(400).json({ error: 'Missing ticker parameter' });
+  
+  // 如果没有 ticker，返回 logo 图片
+  if (!ticker || ticker === 'logo') {
+    try {
+      var logoUrl = 'https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png';
+      var logoRes = await fetch(logoUrl);
+      var logoBuf = await logoRes.arrayBuffer();
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).end(Buffer.from(logoBuf));
+    } catch (e) {
+      return res.status(500).json({ error: 'Logo fetch failed' });
+    }
   }
 
+  // 原始股票价格查询逻辑...
   var apiKey = process.env.FINNHUB_API_KEY || '';
 
   try {
-    // 方案一：Finnhub（如有配置 key）
     if (apiKey) {
       var finnhubUrl = 'https://finnhub.io/api/v1/quote?symbol=' +
         encodeURIComponent(ticker.toUpperCase()) + '&token=' + apiKey;
-
       var fr = await fetch(finnhubUrl, { headers: { 'Accept': 'application/json' } });
-
       if (fr.ok) {
         var fd = await fr.json();
         if (fd && fd.c !== undefined && fd.c !== null && fd.c > 0) {
@@ -43,7 +51,6 @@ export default async function handler(req, res) {
                   currency: 'USD',
                   symbol: ticker.toUpperCase(),
                   instrumentType: 'EQUITY',
-                  dataSource: 'Finnhub',
                 },
               }],
             },
@@ -52,9 +59,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // 方案二：Yahoo Finance（降级）
     var ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
-
     var r1 = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?range=1d&interval=1d', {
       headers: { 'User-Agent': ua, 'Accept': 'application/json' },
     });
@@ -72,4 +77,34 @@ export default async function handler(req, res) {
     if (r2.ok) {
       var d2 = await r2.json();
       if (d2 && d2.chart && d2.chart.result && d2.chart.result[0]) {
-        d2.chart.result[0].meta.da
+        d2.chart.result[0].meta.dataSource = 'Yahoo Finance (query2)';
+        return res.status(200).json(d2);
+      }
+    }
+
+    var cookieRes = await fetch('https://fc.yahoo.com', { headers: { 'User-Agent': ua } });
+    var cookie = '';
+    var sc = cookieRes.headers.get('set-cookie');
+    if (sc) { cookie = sc.split(';')[0]; }
+
+    var crumbRes = await fetch('https://query2.finance.yahoo.com/v1/test/getcrumb', {
+      headers: { Cookie: cookie, 'User-Agent': ua },
+    });
+    var crumb = await crumbRes.text();
+
+    var r3 = await fetch('https://query2.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?range=1d&interval=1d&crumb=' + encodeURIComponent(crumb), {
+      headers: { Cookie: cookie, 'User-Agent': ua },
+    });
+    if (r3.ok) {
+      var d3 = await r3.json();
+      if (d3 && d3.chart && d3.chart.result && d3.chart.result[0]) {
+        d3.chart.result[0].meta.dataSource = 'Yahoo Finance (crumb)';
+        return res.status(200).json(d3);
+      }
+    }
+
+    return res.status(502).json({ error: 'All sources failed for ' + ticker });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
