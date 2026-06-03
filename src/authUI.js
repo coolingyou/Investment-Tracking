@@ -130,7 +130,7 @@ export function initAuthUI() {
 <div class="auth-page" id="authPage">
   <div class="auth-container">
     <div class="auth-header">
-      <img src="/TT-logo-1.png" alt="TradeTracker" class="auth-logo-img" />
+      <img src="/assets/TT-logo-1-9DHJ5JMD.png" alt="TradeTracker" class="auth-logo-img" />
       <h1>TradeTracker</h1>
       <p>美股投资分析平台</p>
     </div>
@@ -192,5 +192,4 @@ export function initAuthUI() {
   // 暴露 OAuth handler 到 window
   window._authOAuth = handleOAuth;
 
-  setAuthMode('login');
-}
+  setAuthM
