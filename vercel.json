@@ -2,6 +2,7 @@
   "framework": null,
   "buildCommand": "npm run build",
   "rewrites": [
+    { "source": "/TT-logo-1.png", "destination": "/assets/TT-logo-1-9DHJ5JMD.png" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/dist/index.html" }
   ]
