@@ -30,9 +30,16 @@ export async function signIn(email, password) {
 
 /** OAuth 登录（Google / Microsoft / Facebook） */
 export async function signInWithOAuth(provider) {
+  // 用当前页面的确切 URL 作为重定向地址
+  var redirectUrl = window.location.origin;
+  // 确保去掉末尾的 index.html
+  if (redirectUrl.endsWith('/index.html')) {
+    redirectUrl = redirectUrl.replace('/index.html', '');
+  }
+
   var { data, error } = await supabase.auth.signInWithOAuth({
     provider: provider,
-    options: { redirectTo: window.location.origin },
+    options: { redirectTo: redirectUrl },
   });
   if (error) throw new Error(error.message);
   return data;
@@ -86,10 +93,4 @@ export async function updateProfile(userId, updates) {
   return data;
 }
 
-/** 检查当前是否已登录（仅限 Supabase 在线模式） */
-export async function requireAuth() {
-  if (!ENV_CHECK) return null; // 离线降级模式
-  var { data, error } = await supabase.auth.getUser();
-  if (error || !data?.user) return null;
-  return data.user;
-}
+/** 检查当前是否已登录（仅限 Su
