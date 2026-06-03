@@ -1,10 +1,18 @@
+/**
+ * 行情获取工具 —— 通过 Vercel Serverless API 获取实时报价
+ * 优先使用 Finnhub，降级到 Yahoo Finance
+ */
+
+/**
+ * 获取单支股票的实时价格
+ * @param {string} ticker - 股票代码
+ * @returns {Promise<{ price: number, currency: string }>}
+ */
 export async function fetchSinglePrice(ticker) {
-  // 加时间戳避免 Vercel/浏览器缓存
-  var url = '/api/quote?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
+  var url = '/api/stock-price?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
   var res = await fetch(url, { signal: AbortSignal.timeout(15000), cache: 'no-store' });
   var data = await res.json();
 
-  // 优先从 chart.result[0].meta 读取
   var result = data && data.chart && data.chart.result && data.chart.result[0];
   if (result && result.meta && result.meta.regularMarketPrice !== undefined) {
     return {
@@ -13,10 +21,5 @@ export async function fetchSinglePrice(ticker) {
     };
   }
 
-  // 如果 Yahoo 返回 error，抛出具体信息
   if (data && data.chart && data.chart.error) {
-    throw new Error('[TradeTracker] ' + ticker + ' Yahoo error: ' + (data.chart.error.description || data.chart.error.code));
-  }
-
-  throw new Error('[TradeTracker] ' + ticker + ' no price data (HTTP ' + res.status + ')');
-}
+    throw new Error('[TradeTracker] ' + ticker + ' ' + (data.chart.error.descrip
