@@ -5,19 +5,22 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.warn(
-    '[TradeTracker] 未配置 Supabase 环境变量。请在项目根目录创建 .env 文件：\n' +
-    '  VITE_SUPABASE_URL=https://你的项目.supabase.co\n' +
-    '  VITE_SUPABASE_ANON_KEY=你的匿名公钥'
+    '[TradeTracker] 未配置 Supabase 环境变量。请在项目根目录创建 .env 文件'
   );
 }
 
-/** Supabase 客户端实例 */
-var supabaseUrl = SUPABASE_URL;
-var supabaseKey = SUPABASE_ANON_KEY;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});
 
-// 如果在 Vercel 环境而且没有配置环境变量，就用 Vercel 环境变量
-// (import.meta.env 在 Vite 构建后不可用，需要运行时判断)
-try {
-  if (!supabaseUrl && typeof process !== 'undefined' && process.env && process.env.VITE_SUPABASE_URL) {
-    supabaseUrl = process.env.VITE_SUPABASE_URL;
- 
+export const TABLES = {
+  PROFILES: 'profiles',
+  TRANSACTIONS: 'transactions',
+  PRICE_CACHE: 'price_cache',
+};
+
+export const ENV_CHECK = !!SUPABASE_URL;

@@ -3,13 +3,7 @@
  * 优先使用 Finnhub，降级到 Yahoo Finance
  */
 
-/**
- * 获取单支股票的实时价格
- * @param {string} ticker - 股票代码
- * @returns {Promise<{ price: number, currency: string }>}
- */
 export async function fetchSinglePrice(ticker) {
-  // 使用完整 URL 确保从 Vercel 域名请求，而不是 localhost:3000
   var baseUrl = window.location.protocol + '//' + window.location.host;
   var url = baseUrl + '/api/quote?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
   var res = await fetch(url, { signal: AbortSignal.timeout(15000), cache: 'no-store' });
@@ -19,4 +13,33 @@ export async function fetchSinglePrice(ticker) {
   if (result && result.meta && result.meta.regularMarketPrice !== undefined) {
     return {
       price: Number(result.meta.regularMarketPrice),
-      currency: result.met
+      currency: result.meta.currency || 'USD',
+    };
+  }
+
+  if (data && data.chart && data.chart.error) {
+    throw new Error('[TradeTracker] ' + ticker + ' Yahoo error: ' + (data.chart.error.description || data.chart.error.code));
+  }
+
+  throw new Error('[TradeTracker] ' + ticker + ' no price data (HTTP ' + res.status + ')');
+}
+
+export async function searchStock(query) {
+  var baseUrl = window.location.protocol + '//' + window.location.host;
+  var url = baseUrl + '/api/search?q=' + encodeURIComponent(query);
+  var res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!res.ok) return null;
+
+  var data = await res.json();
+  var quotes = data && data.quotes;
+  if (!quotes || quotes.length === 0) return null;
+
+  var exchangeMap = { 'NMS': 'NASDAQ', 'NYQ': 'NYSE', 'ASE': 'AMEX', 'PCX': 'NYSE', 'BTS': 'NASDAQ' };
+  for (var i = 0; i < quotes.length; i++) {
+    var q = quotes[i];
+    if (q.quoteType === 'EQUITY' || q.quoteType === 'ETF') {
+      return { ticker: q.symbol, name: q.longname || q.shortname || q.symbol, exchange: exchangeMap[q.exchange] || q.exchange || 'NASDAQ' };
+    }
+  }
+  return { ticker: quotes[0].symbol, name: quotes[0].longname || quotes[0].shortname || quotes[0].symbol, exchange: quotes[0].exchange || 'NASDAQ' };
+}

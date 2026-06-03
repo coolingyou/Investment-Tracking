@@ -94,3 +94,10 @@ export async function updateProfile(userId, updates) {
 }
 
 /** 检查当前是否已登录（仅限 Su
+/** 检查当前是否已登录（仅限 Supabase 在线模式） */
+export async function requireAuth() {
+  if (!ENV_CHECK) return null;
+  var { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user) return null;
+  return data.user;
+}
