@@ -564,4 +564,12 @@ document.addEventListener('DOMContentLoaded', function () {
   if (searchInput) {
     searchInput.addEventListener('input', debounce(function () {
       if (activeTab === 'holdings') renderHoldingsTable();
-      else if
+      else if (activeTab === 'transactions') renderTransactionsTable();
+    }, 200));
+  }
+
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+  // 启动认证流程
+  initAuth();
+});
