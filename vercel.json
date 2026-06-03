@@ -4,6 +4,7 @@
   "buildCommand": "npm run build && cp dist/TT-logo-1.png .",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/assets/index-OjDKwW5K.js", "destination": "/index-OjDKwW5K.js" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
