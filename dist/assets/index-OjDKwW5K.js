@@ -45,7 +45,7 @@ ${m}`}class R extends Error{constructor({message:e,code:r,cause:s,name:n}){var i
 <div class="auth-page" id="authPage">
   <div class="auth-container">
     <div class="auth-header">
-      <img src="/assets/TT-logo-1-9DHJ5JMD.png" alt="TradeTracker" class="auth-logo-img" />
+      <img src="/TT-logo-1-9DHJ5JMD.png" alt="TradeTracker" class="auth-logo-img" />
       <h1>TradeTracker</h1>
       <p>美股投资分析平台</p>
     </div>
