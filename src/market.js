@@ -9,7 +9,7 @@
  * @returns {Promise<{ price: number, currency: string }>}
  */
 export async function fetchSinglePrice(ticker) {
-  var url = '/api/quote?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
+  var url = '/api/stock-price?ticker=' + encodeURIComponent(ticker) + '&_=' + Date.now();
   var res = await fetch(url, { signal: AbortSignal.timeout(15000), cache: 'no-store' });
   var data = await res.json();
 
@@ -22,4 +22,4 @@ export async function fetchSinglePrice(ticker) {
   }
 
   if (data && data.chart && data.chart.error) {
-    throw new Error('[TradeTracker] ' + ticker + ' ' + (data.chart.error.descrip
+    throw new Error('[TradeTracker] ' + ticker + ' ' + (data.chart.error.d
