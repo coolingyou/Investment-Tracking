@@ -47,7 +47,6 @@ export async function fetchPriceCache() {
         for (const row of legacy) {
           result[row.ticker] = { price: Number(row.price), ts: new Date(row.updated_at).getTime() };
         }
-        // 将旧数据迁移到当前用户
         if (legacy.length > 0) {
           var migrateRows = legacy.map(function (r) {
             return { user_id: user.data.user.id, ticker: r.ticker, price: Number(r.price), updated_at: r.updated_at };
@@ -55,10 +54,37 @@ export async function fetchPriceCache() {
           await supabase.from(TABLES.PRICE_CACHE).upsert(migrateRows, { onConflict: 'user_id,ticker' });
         }
       }
-    } catch (e) {
-      // 静默处理
-    }
+    } catch (e) {}
   }
 
   return result;
+}
+
+/** 批量写入价格缓存 */
+export async function upsertPriceCache(prices) {
+  if (!IS_CLOUD) {
+    const cache = loadFallback();
+    Object.assign(cache, prices);
+    saveFallback(cache);
+    return;
+  }
+
+  var user = await supabase.auth.getUser();
+  if (!user?.data?.user) return;
+
+  var rows = Object.entries(prices).map(function (entry) {
+    return {
+      user_id: user.data.user.id,
+      ticker: entry[0],
+      price: Number(entry[1].price),
+      updated_at: new Date(entry[1].ts).toISOString(),
+    };
+  });
+  if (rows.length === 0) return;
+
+  const { error } = await supabase
+    .from(TABLES.PRICE_CACHE)
+    .upsert(rows, { onConflict: 'user_id,ticker' });
+
+  if (error) throw new Error('[Supabase] 写入价格缓存失败: ' + error.message);
 }
