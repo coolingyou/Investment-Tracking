@@ -10,10 +10,19 @@ export default async function handler(req, res) {
 
   var ticker = req.query.ticker;
 
-  // Logo request
+  // Logo request - direct proxy, no redirect
   if (!ticker || ticker === 'logo') {
-    res.setHeader('Location', 'https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png');
-    return res.status(302).end();
+    try {
+      var logoUrl = 'https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png';
+      var r = await fetch(logoUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      if (!r.ok) throw new Error('Fetch failed');
+      var buf = await r.arrayBuffer();
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).end(Buffer.from(buf));
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
   }
 
   var apiKey = process.env.FINNHUB_API_KEY || '';
