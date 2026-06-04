@@ -217,7 +217,7 @@ body {
 .app-container { max-width: 1440px; margin: 0 auto; padding: 24px 28px 60px; animation: fadeInUp 0.5s ease; }
 .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
 .app-header .logo { display: flex; align-items: center; gap: 14px; }
-.app-header .logo .logo-img { height: 67px; width: auto; display: block; }
+.app-header .logo .logo-img { height: auto; width: 220px; display: block; }
 .app-header .logo h1 { font-size: 24px; font-weight: 700; background: linear-gradient(135deg,#f1f5f9 0%,#94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .app-header .logo .subtitle { font-size: 13px; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); }
 .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -346,4 +346,4 @@ td .red   { color: var(--accent-red); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group.full { grid-column: 1 / -1; }
-.form-group label { font-size: 12px; font-weight: 500; color: var(--tex
+.form-group label { font-size: 12px; font-weight: 500; color: var(--te
