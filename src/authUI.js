@@ -130,7 +130,7 @@ export function initAuthUI() {
 <div class="auth-page" id="authPage">
   <div class="auth-container">
     <div class="auth-header">
-      <img src="/api/quote?ticker=logo" alt="TradeTracker" class="auth-logo-img" />
+      <img src="https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png" alt="TradeTracker" class="auth-logo-img" />
       <h1>TradeTracker</h1>
       <p>美股投资分析平台</p>
     </div>
