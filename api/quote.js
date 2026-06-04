@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   // Logo request
   if (!ticker || ticker === 'logo') {
-    res.setHeader('Location', 'https://raw.githubusercontent.com/coolingyou/Investment-Tracking/main/TT-logo-1.png');
+    res.setHeader('Location', 'https://cdn.jsdelivr.net/gh/coolingyou/Investment-Tracking@main/TT-logo-1.png');
     return res.status(302).end();
   }
 
