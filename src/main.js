@@ -8,7 +8,7 @@ import {
 } from './transactions.js';
 import { fetchPriceCache, upsertPriceCache } from './prices.js';
 import { getHoldings, getRealizedPnL } from './calculations.js';
-import { fetchSinglePrice } from './market.js';
+import { fetchSinglePrice, searchStock } from './market.js';
 import { requireAuth, signOut, fetchProfile, updateProfile, getCurrentUser, onAuthStateChange } from './auth.js';
 import { initAuthUI, showAuth, hideAuth } from './authUI.js';
 
@@ -555,21 +555,14 @@ document.addEventListener('DOMContentLoaded', function () {
   if (btnCancel) btnCancel.addEventListener('click', debounce(closeModal, 200));
   if (btnLogout) btnLogout.addEventListener('click', debounce(handleLogout, 300));
 
-  // 点击遮罩关闭
-  var overlay = document.getElementById('modalOverlay');
-  if (overlay) { overlay.addEventListener('click', function (e) { if (e.target === e.currentTarget) closeModal(); }); }
-
-  // 搜索
-  var searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('input', debounce(function () {
-      if (activeTab === 'holdings') renderHoldingsTable();
-      else if (activeTab === 'transactions') renderTransactionsTable();
-    }, 200));
-  }
-
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
-
-  // 启动认证流程
-  initAuth();
-});
+  // 自动补全：输入 ticker 后自动获取股票名称和交易所
+  var fTickerInput = document.getElementById('f_ticker');
+  if (fTickerInput) {
+    fTickerInput.addEventListener('blur', debounce(async function () {
+      var ticker = fTickerInput.value.trim().toUpperCase();
+      if (!ticker) return;
+      var fNameInput = document.getElementById('f_name');
+      var fExchangeInput = document.getElementById('f_exchange');
+      if (!fNameInput || !fExchangeInput) return;
+      // 如果已经有名称且手动修改过则跳过自动填充
+      if (fNameInput.value.trim() && fNameInput.dataset.manual === 'true') retur
