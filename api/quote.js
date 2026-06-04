@@ -23,10 +23,10 @@ export default async function handler(req, res) {
     try {
       var logoRes = await fetch('https://raw.githubusercontent.com/coolingyou/Investment-Tracking/main/TT-logo-1.png');
       if (logoRes.ok) {
-        var buf = await logoRes.arrayBuffer();
+        var text = await logoRes.text();
         res.setHeader('Content-Type', 'image/png');
         res.setHeader('Cache-Control', 'public, max-age=86400');
-        return res.status(200).end(Buffer.from(buf));
+        return res.status(200).send(text);
       }
     } catch (e) {}
     res.setHeader('Location', 'https://raw.githubusercontent.com/coolingyou/Investment-Tracking/main/TT-logo-1.png');
