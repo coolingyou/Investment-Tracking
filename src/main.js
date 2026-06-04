@@ -567,3 +567,44 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!fNameInput || !fExchangeInput) return;
       // 如果已经有名称且手动修改过则跳过自动填充
       if (fNameInput.value.trim() && fNameInput.dataset.manual === 'true') retur
+      if (fNameInput.value.trim() && fNameInput.dataset.manual === 'true') return;
+      try {
+        var result = await searchStock(ticker);
+        if (result && result.name) {
+          fNameInput.value = result.name;
+          fNameInput.dataset.auto = 'true';
+          if (result.exchange) fExchangeInput.value = result.exchange;
+        }
+      } catch (err) {
+        console.warn('[TradeTracker] 自动补全失败:', err.message);
+      }
+    }, 400));
+  }
+  // 如果用户手动修改名称，标记为手动，不再自动覆盖
+  var fNameInput = document.getElementById('f_name');
+  if (fNameInput) {
+    fNameInput.addEventListener('input', function () {
+      if (fNameInput.dataset.auto === 'true' && fNameInput.value.trim() !== '') {
+        fNameInput.dataset.manual = 'true';
+      }
+    });
+  }
+
+  // 点击遮罩关闭
+  var overlay = document.getElementById('modalOverlay');
+  if (overlay) { overlay.addEventListener('click', function (e) { if (e.target === e.currentTarget) closeModal(); }); }
+
+  // 搜索
+  var searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(function () {
+      if (activeTab === 'holdings') renderHoldingsTable();
+      else if (activeTab === 'transactions') renderTransactionsTable();
+    }, 200));
+  }
+
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+  // 启动认证流程
+  initAuth();
+});
