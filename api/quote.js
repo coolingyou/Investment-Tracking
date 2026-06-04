@@ -18,10 +18,18 @@ export default async function handler(req, res) {
 
   var ticker = req.query.ticker;
 
-  // 返回 logo 图片（直接 302 重定向到 CDN，保持原图质量）
+  // 返回 logo 图片
   if (!ticker || ticker === 'logo') {
-    var cdnUrl = 'https://raw.githubusercontent.com/coolingyou/Investment-Tracking/main/TT-logo-1.png';
-    res.setHeader('Location', cdnUrl);
+    try {
+      var logoRes = await fetch('https://raw.githubusercontent.com/coolingyou/Investment-Tracking/main/TT-logo-1.png');
+      if (logoRes.ok) {
+        var buf = await logoRes.arrayBuffer();
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        return res.status(200).end(Buffer.from(buf));
+      }
+    } catch (e) {}
+    res.setHeader('Location', 'https://raw.githubusercontent.com/coolingyou/Investment-Tracking/main/TT-logo-1.png');
     return res.status(302).end();
   }
 
@@ -78,14 +86,4 @@ export default async function handler(req, res) {
     });
     if (r3.ok) {
       var d3 = await r3.json();
-      if (d3 && d3.chart && d3.chart.result && d3.chart.result[0]) {
-        d3.chart.result[0].meta.dataSource = 'Yahoo Finance (crumb)';
-        return res.status(200).json(d3);
-      }
-    }
-
-    return res.status(502).json({ error: 'All sources failed for ' + ticker });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-}
+      if (d3 && d3.chart && d3.chart
