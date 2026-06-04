@@ -12,6 +12,7 @@ import { fetchSinglePrice, searchStock } from './market.js';
 import { requireAuth, signOut, fetchProfile, updateProfile, getCurrentUser, onAuthStateChange } from './auth.js';
 import { initAuthUI, showAuth, hideAuth } from './authUI.js';
 
+/* 1780545377.0 */
 /* 防抖 */
 function debounce(callback, delay) {
   var timer = null;
