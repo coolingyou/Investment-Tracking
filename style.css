@@ -5,13 +5,13 @@
 
 /* ----- CSS 变量 ----- */
 :root {
-  --bg-primary: #0b0e17;
-  --bg-secondary: #111827;
-  --bg-card: #1a1f2e;
-  --bg-card-hover: #202738;
-  --bg-input: #1e2538;
-  --border-color: #2a3145;
-  --border-focus: #3b82f6;
+  --bg-primary: #1a2236;
+  --bg-secondary: #222b40;
+  --bg-card: #2c3650;
+  --bg-card-hover: #34405a;
+  --bg-input: #2e3a52;
+  --border-color: #3d4a66;
+  --border-focus: #5b9cf6;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -293,10 +293,10 @@ body {
 .table-wrapper:hover { border-color: var(--border-focus); }
 .table-responsive { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th { background: rgba(15,23,42,0.6); padding: 12px 14px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); white-space: nowrap; cursor: pointer; user-select: none; }
+thead th { background: rgba(26,34,54,0.8); padding: 12px 14px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); white-space: nowrap; cursor: pointer; user-select: none; }
 thead th:hover { color: var(--text-secondary); }
 thead th i { margin-left: 3px; font-size: 10px; }
-tbody tr { border-bottom: 1px solid rgba(42,49,69,0.4); transition: var(--transition); }
+tbody tr { border-bottom: 1px solid rgba(56,66,88,0.4); transition: var(--transition); }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: rgba(59,130,246,0.04); }
 tbody td { padding: 11px 14px; vertical-align: middle; color: var(--text-secondary); }
