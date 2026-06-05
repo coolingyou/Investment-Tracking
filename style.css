@@ -5,11 +5,11 @@
 
 /* ----- CSS 变量 ----- */
 :root {
-  --bg-primary: #2d3a5c;
-  --bg-secondary: #35446a;
-  --bg-card: #42547a;
-  --bg-card-hover: #4d6090;
-  --bg-input: #3f5278;
+  --bg-primary: #3b4d7a;
+  --bg-secondary: #445886;
+  --bg-card: #5570a4;
+  --bg-card-hover: #6180b8;
+  --bg-input: #4f6996;
   --border-color: #5674a0;
   --border-focus: #7bb4fe;
   --text-primary: #f1f5f9;
