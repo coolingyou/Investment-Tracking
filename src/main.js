@@ -186,16 +186,16 @@ function renderCharts() {
 
   var pieLabels = holdings.map(function (h) { return h.name + ' (' + h.ticker + ')'; });
   var pieData = holdings.map(function (h) { return h.marketValue; });
-  var pieColors = holdings.map(function (_, i) { return 'hsl(' + ((i * 137.508) % 360) + ', 65%, 55%)'; });
+  var pieColors = holdings.map(function (_, i) { return 'hsl(' + ((i * 137.508) % 360) + ', 70%, 58%)'; });
 
   pieChart = new Chart(pieCtx.getContext('2d'), {
     type: 'doughnut',
-    data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: pieColors, borderColor: '#111827', borderWidth: 2, hoverOffset: 8 }] },
+    data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: pieColors, borderColor: '#ffffff', borderWidth: 3, hoverOffset: 8 }] },
     options: {
       responsive: true, maintainAspectRatio: true,
       plugins: {
-        legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 11 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
-        tooltip: { backgroundColor: '#1a1f2e', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#2a3145', borderWidth: 1, padding: 10,
+        legend: { position: 'right', labels: { color: '#5a6378', font: { size: 11 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+        tooltip: { backgroundColor: '#1a1f36', titleColor: '#ffffff', bodyColor: '#cbd2e0', borderColor: '#1a1f36', borderWidth: 0, padding: 10, cornerRadius: 8,
           callbacks: { label: function (ctx) { var t = ctx.dataset.data.reduce(function (a, b) { return a + b; }, 0); return ' ' + formatCurrency(ctx.raw) + '  (' + (t > 0 ? ((ctx.raw / t) * 100).toFixed(1) : 0) + '%)'; } }
         },
       },
@@ -204,20 +204,20 @@ function renderCharts() {
 
   var barLabels = holdings.map(function (h) { return h.name + ' (' + h.ticker + ')'; });
   var barData = holdings.map(function (h) { return h.unrealizedPnl; });
-  var barColors = barData.map(function (v) { return v >= 0 ? '#10b981' : '#ef4444'; });
+  var barColors = barData.map(function (v) { return v >= 0 ? '#16a34a' : '#e0394f'; });
 
   barChart = new Chart(barCtx.getContext('2d'), {
     type: 'bar',
-    data: { labels: barLabels, datasets: [{ label: '未实现盈亏 ($)', data: barData, backgroundColor: barColors, borderRadius: 4, borderSkipped: false }] },
+    data: { labels: barLabels, datasets: [{ label: '未实现盈亏 ($)', data: barData, backgroundColor: barColors, borderRadius: 6, borderSkipped: false }] },
     options: {
       responsive: true, maintainAspectRatio: true,
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: '#1a1f2e', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#2a3145', borderWidth: 1, padding: 10, callbacks: { label: function (ctx) { return ' ' + formatCurrency(ctx.raw); } } },
+        tooltip: { backgroundColor: '#1a1f36', titleColor: '#ffffff', bodyColor: '#cbd2e0', borderColor: '#1a1f36', borderWidth: 0, padding: 10, cornerRadius: 8, callbacks: { label: function (ctx) { return ' ' + formatCurrency(ctx.raw); } } },
       },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(42,49,69,0.3)' } },
-        y: { ticks: { color: '#64748b', font: { size: 11 }, callback: function (v) { return formatCurrency(v); } }, grid: { color: 'rgba(42,49,69,0.3)' } },
+        x: { ticks: { color: '#98a1b5', font: { size: 10 } }, grid: { color: 'rgba(230,233,242,0.7)' } },
+        y: { ticks: { color: '#98a1b5', font: { size: 11 }, callback: function (v) { return formatCurrency(v); } }, grid: { color: 'rgba(230,233,242,0.7)' } },
       },
     },
   });
